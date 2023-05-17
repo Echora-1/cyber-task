@@ -5,32 +5,21 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
-import {useUserStore} from "@/store/user";
 import auth from "@/middleware/auth";
-import {useApi} from "@/composables/useApi";
-import {user} from "@/components/entities/user/api/user";
-import {useCookies} from "@vueuse/integrations/useCookies";
-
+import {user } from "@/components/entities/user/api/user";
+import {RouteEnum} from "@/shared/config/routerConfig/routerConfig";
+useHead({title: RouteEnum.role.meta.title})
 definePageMeta({
     layout: "user",
     middleware: [ auth ],
 });
+const cookieToken = useCookie('token')
+const roles = computed(() =>  userData.value?.roles.map(r => r.name).join(''));
 
-const cookies = useCookies(['token'])
-const userStore = useUserStore()
-const roles = computed(() =>  userStore.user?.roles.map(r => r.name).join(''));
-
-const {result: userData, callApi: getUserFromServer, loading, error} = useApi(async query => {
-    const res = await user.info(cookies.get('token'))
-    return res.data.data
+const {result: userData, callApi: getUser, loading } = useApi(async query => {
+    const res = await user.info(cookieToken.value)
+    return {data: res.data.value?.data, error: res.error.value?.data.message}
 })
 
-async function getUser() {
-    await getUserFromServer()
-    if(userData.value) {
-        userStore.setUser(userData.value)
-    }
-}
-getUser()
+await getUser()
 </script>

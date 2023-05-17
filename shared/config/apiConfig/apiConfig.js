@@ -1,11 +1,2 @@
-import axios from "axios";
-
-const BASE_URL = '/api/'
-
-export const instance = axios.create({
-    baseURL: BASE_URL,
-    headers: {
-        "Accept": "application/json",
-        "Authorization": "Basic YmFzaWM6NldUeDdsVjNIR1AzNzRna245c2w="
-    },
-})
+export const BASE_URL = '/api/'
+export const BASE_HEADERS = {Authorization: "Basic YmFzaWM6NldUeDdsVjNIR1AzNzRna245c2w="}

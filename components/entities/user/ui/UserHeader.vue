@@ -7,16 +7,12 @@
 </template>
 <script setup>
 import BaseButton from "~/components/ui/base/BaseButton.vue";
-import {useUserStore} from "~/store/user";
-import {useCookies} from "@vueuse/integrations/useCookies";
 const router = useRouter()
-const userStore = useUserStore()
-const cookies = useCookies(['token'])
+const cookieToken = useCookie('token')
 
 function logout() {
     router.push('/')
-    userStore.setUser(null)
-    cookies.remove('token')
+    cookieToken.value = null
 }
 </script>
 

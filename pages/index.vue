@@ -6,7 +6,8 @@
 
 <script setup>
 import ProcessLogin from "../components/processes/ProcessLogin";
-
+import {RouteEnum} from "@/shared/config/routerConfig/routerConfig";
+useHead({title: RouteEnum.login.meta.title})
 </script>
 
 <style lang="scss" scoped>

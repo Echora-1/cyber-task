@@ -1,6 +1,6 @@
 <template>
     <auth-form-wrap :content="{ title: 'Login', subtitle: 'Welcome back!' }">
-        <form class="login-form" @submit.prevent="login" @input="error = false">
+        <form class="login-form" @submit.prevent="submitLogin" @input="error = false">
             <auth-input
                     v-model="form.email"
                     type="email"
@@ -28,7 +28,7 @@
             <p v-if="error" class="login-form__error-text">
                 {{ error }}
             </p>
-            <nuxt-link class="login-form__footer-text" to="/registration">
+            <nuxt-link class="login-form__footer-text" :to="RouteEnum.registration.path">
                 Not with us yet?
                 <span>Registration</span>
             </nuxt-link>
@@ -37,18 +37,18 @@
 </template>
 
 <script setup>
-import {reactive} from 'vue';
-import { useCookies } from '@vueuse/integrations/useCookies';
 import {useVuelidate} from '@vuelidate/core';
 import {required, email} from '@vuelidate/validators';
 import {vuelidateConfig} from '@/shared/config/vuelidateConfig/vueliadateConfig';
 import {useApi} from "@/composables/useApi";
+import {user} from "@/components/entities/user/api/user";
 import AuthInput from '../ui/auth/AuthInput';
 import AuthFormWrap from '../ui/auth/AuthFormWrap';
 import BaseButton from '../ui/base/BaseButton.vue';
-import {user} from "@/components/entities/user/api/user";
+import {RouteEnum} from "@/shared/config/routerConfig/routerConfig";
+
 const router = useRouter()
-const cookies = useCookies(['token'])
+const cookieToken = useCookie('token')
 
 const form = reactive({
     email: '',
@@ -62,25 +62,21 @@ const rules = {
 
 const v$ = useVuelidate(rules, form, vuelidateConfig)
 
-const {result: userToken, callApi: userLogin, loading, error} = useApi(async query => {
-    const res = await user.login({
-        email: form.email,
-        password: form.password,
-    })
-    return res.data.data
+const {result: userToken, callApi: login, loading, error} = useApi(async () => {
+    const res = await user.login(form)
+    return {data: res.data.value?.data, error: res.error.value?.data.message}
 })
 
-async function login() {
+
+async function submitLogin() {
     const isFormCorrect = await v$.value.$validate()
     if (isFormCorrect) {
-        await userLogin()
+        await login()
         if (userToken.value) {
-            cookies.set('token', userToken.value.token)
-            router.push('/role')
+            cookieToken.value = userToken.value?.token
+            await router.push(RouteEnum.role.path)
         }
     }
-
-
 }
 
 </script>

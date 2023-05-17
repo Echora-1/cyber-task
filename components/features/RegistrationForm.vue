@@ -1,6 +1,6 @@
 <template>
     <auth-form-wrap :content="{ title: 'Registration', subtitle: 'Welcome!' }">
-        <form class="registration-form" @submit.prevent="register" @input="error = ''">
+        <form class="registration-form" @submit.prevent="submitRegister" @input="error = ''">
             <auth-input
                     v-model="form.name.value"
                     type="text"
@@ -46,7 +46,7 @@
             <p v-if="error" class="registration-form__error-text">
                 {{ error }}
             </p>
-            <nuxt-link class="registration-form__footer-text" to="/">
+            <nuxt-link class="registration-form__footer-text" :to="RouteEnum.login.path">
                 Already have an account?
                 <span>Login</span>
             </nuxt-link>
@@ -55,7 +55,6 @@
 </template>
 
 <script setup>
-import {ref} from 'vue';
 import {useVuelidate} from '@vuelidate/core';
 import {required, email, sameAs} from '@vuelidate/validators';
 import {vuelidateConfig} from '@/shared/config/vuelidateConfig/vueliadateConfig';
@@ -64,6 +63,7 @@ import {user} from "@/components/entities/user/api/user";
 import AuthInput from '../ui/auth/AuthInput';
 import AuthFormWrap from '../ui/auth/AuthFormWrap';
 import BaseButton from '../ui/base/BaseButton.vue';
+import {RouteEnum} from "@/shared/config/routerConfig/routerConfig";
 const router = useRouter()
 const form = {
     name: ref(''),
@@ -81,22 +81,22 @@ const rules = {
 
 const v$ = useVuelidate(rules, form, vuelidateConfig)
 
-const {result, callApi: userRegister, loading, error} = useApi(async query => {
+const {result, callApi: register, loading, error} = useApi(async query => {
     const res = await user.register({
         name: form.name.value,
         email: form.email.value,
         password: form.password.value,
         password_confirmation: form.confirmPassword.value
     })
-    return res.data.data
+    return {data: res.data.value?.data, error: res.error.value?.data.message}
 })
 
-async function register() {
+async function submitRegister() {
     const isFormCorrect = await v$.value.$validate()
     if (isFormCorrect) {
-        await userRegister()
+        await register()
         if (result.value) {
-            router.push('/')
+            router.push(RouteEnum.login.path)
         }
     }
 }

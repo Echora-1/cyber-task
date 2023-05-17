@@ -5,7 +5,9 @@
 </template>
 
 <script setup>
-import ProcessRegistration from "~/components/processes/ProcessRegistration.vue";
+import ProcessRegistration from "@/components/processes/ProcessRegistration.vue";
+import {RouteEnum} from "@/shared/config/routerConfig/routerConfig";
+useHead({title: RouteEnum.registration.meta.title})
 </script>
 
 <style lang="scss" scoped>
