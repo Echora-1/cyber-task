@@ -96,7 +96,7 @@ async function submitRegister() {
     if (isFormCorrect) {
         await register()
         if (result.value) {
-            router.push(RouteEnum.login.path)
+          await router.push(RouteEnum.login.path)
         }
     }
 }

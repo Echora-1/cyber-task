@@ -11,8 +11,8 @@ const router = useRouter()
 const cookieToken = useCookie('token')
 
 function logout() {
-    router.push('/')
     cookieToken.value = null
+    router.push('/')
 }
 </script>
 

@@ -14,12 +14,16 @@ definePageMeta({
     middleware: [ auth ],
 });
 const cookieToken = useCookie('token')
-const roles = computed(() =>  userData.value?.roles.map(r => r.name).join(''));
+const roles = computed(() =>  userInfo.value?.roles.map(r => r.name).join(''));
 
-const {result: userData, callApi: getUser, loading } = useApi(async query => {
+const {result: userInfo, callApi: getUserInfo, loading } = useApi(async query => {
     const res = await user.info(cookieToken.value)
     return {data: res.data.value?.data, error: res.error.value?.data.message}
 })
 
-await getUser()
+onMounted(() => {
+    nextTick(async () => {
+        await getUserInfo()
+    })
+})
 </script>
